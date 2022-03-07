@@ -2156,9 +2156,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameID_iOS: 
   gameID_Android: 
-  InterstitialAdController: {fileID: 1609789830}
-  RewardedAdController: {fileID: 1609789831}
-  InitializeButton: {fileID: 543365551}
+  interstitialAdController: {fileID: 1609789830}
+  rewardedAdController: {fileID: 1609789831}
+  initializeButton: {fileID: 543365551}
 --- !u!4 &1609789829
 Transform:
   m_ObjectHideFlags: 0
@@ -2187,12 +2187,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   adUnitId_iOS: Interstitial_iOS
   adUnitId_Android: Interstitial_Android
-  LoadButton: {fileID: 1258887355}
-  LoadStatus: {fileID: 425724860}
-  ShowButton: {fileID: 1017691109}
-  ShowInfo: {fileID: 881456548}
+  loadButton: {fileID: 1258887355}
+  loadStatus: {fileID: 425724860}
+  showButton: {fileID: 1017691109}
+  showInfo: {fileID: 881456548}
   StatusWindow: {fileID: 1555079308}
-  StatusText: {fileID: 1412429993}
+  statusText: {fileID: 1412429993}
 --- !u!114 &1609789831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2207,13 +2207,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   adUnitId_iOS: Rewarded_iOS
   adUnitId_Android: Rewarded_Android
-  LoadButton: {fileID: 2060109417}
-  LoadStatus: {fileID: 1845741845}
-  ShowButton: {fileID: 1441614496}
-  ShowInfo: {fileID: 1467054882}
+  loadButton: {fileID: 2060109417}
+  loadStatus: {fileID: 1845741845}
+  showButton: {fileID: 1441614496}
+  showInfo: {fileID: 1467054882}
   StatusWindow: {fileID: 1533185667}
-  StatusText: {fileID: 0}
-  RewardedCounterText: {fileID: 1542582936}
+  statusText: {fileID: 0}
+  rewardedCounterText: {fileID: 1542582936}
 --- !u!1 &1764134460
 GameObject:
   m_ObjectHideFlags: 0

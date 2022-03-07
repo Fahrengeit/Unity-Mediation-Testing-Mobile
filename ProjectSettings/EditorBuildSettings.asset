@@ -7,5 +7,5 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/UnityMediationAdScene.unity
-    guid: 063311178363e4012afc28db71b7448c
+    guid: 84684cb015816473a9f3ae95f3c04c30
   m_configObjects: {}

@@ -1,54 +1,65 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-/// <summary>
-/// Class <c>UnityMediationController</c> is a class that controls Unity Mediation service
-/// and used for starting the initialization along with used ads, interstitial and rewarded
-/// </summary>
-public class UnityMediationController : MonoBehaviour
+namespace AdMediation.UnityMediation
 {
-    private UnityMediationInitializer _initializer;
-
-    [SerializeField]
-    private string gameID_iOS;
-    [SerializeField]
-    private string gameID_Android;
-
-    public InterstitialAdController InterstitialAdController;
-    public RewardedAdController RewardedAdController;
-
-    public Button InitializeButton;
-
-    private bool _isInitialized;
-
-    public void Awake()
+    /// <summary>
+    /// Class <c>UnityMediationController</c> is a class that controls Unity Mediation service
+    /// and used for starting the initialization along with used ads, interstitial and rewarded
+    /// </summary>
+    public class UnityMediationController : MonoBehaviour
     {
-        _initializer = new UnityMediationInitializer();
-        InitializeButton.onClick.AddListener(Initialize);
-    }
+        private UnityMediationInitializer initializer;
 
-    private void Initialize()
-    {
-        if (!_isInitialized)
+        [SerializeField]
+        private string gameID_iOS;
+        [SerializeField]
+        private string gameID_Android;
+        [SerializeField]
+        private InterstitialAdController interstitialAdController;
+        [SerializeField]
+        private RewardedAdController rewardedAdController;
+        [SerializeField]
+        private Button initializeButton;
+
+        private bool _isInitialized;
+
+        private void Awake()
         {
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                _initializer.Initialize(gameID_Android);
-            }
-            else 
-            {
-                _initializer.Initialize(gameID_iOS);
-            }
-
-            _initializer.OnInitialized += Initialized;
-            _isInitialized = true;
+            initializer = new UnityMediationInitializer();
+            initializeButton.onClick.AddListener(Initialize);
         }
-    }
 
-    private void Initialized()
-    {
-        InterstitialAdController.Initialize(new UnityMediationInterstitialAd());
-        RewardedAdController.Initialize(new UnityMediationRewardedAd());
+        private async void Initialize()
+        {
+            if (!_isInitialized)
+            {
+                initializer.OnInitialized += Initialized;
+
+                switch (Application.platform)
+                {
+                    case RuntimePlatform.Android:
+                        await initializer.Initialize(gameID_Android);
+                        break;
+                    case RuntimePlatform.IPhonePlayer:
+                        await initializer.Initialize(gameID_iOS);
+                        break;
+                    default:
+#if UNITY_EDITOR
+                        await initializer.Initialize(gameID_iOS);
+#else
+                        return;
+#endif
+                        break;
+                }
+                _isInitialized = true;
+            }
+        }
+
+        private void Initialized()
+        {
+            interstitialAdController.Initialize(new UnityMediationInterstitialAd());
+            rewardedAdController.Initialize(new UnityMediationRewardedAd());
+        }
     }
 }

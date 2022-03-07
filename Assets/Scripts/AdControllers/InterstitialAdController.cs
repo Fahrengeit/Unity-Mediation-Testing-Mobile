@@ -4,105 +4,130 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-/// <summary>
-/// Class <c>InterstitialAdController</c> is a class that controls everything a user needs for creating,
-/// loading and showing an interstitial ad in this application.
-/// </summary>
-public class InterstitialAdController : MonoBehaviour
+namespace AdMediation
 {
-    private IInterstitialAdManager _interstitialAdManager;
-
-    [SerializeField]
-    private string adUnitId_iOS;
-    [SerializeField]
-    private string adUnitId_Android;
-
-    public Button LoadButton;
-    public Text LoadStatus;
-    public Button ShowButton;
-    public Text ShowInfo;
-
-    public GameObject StatusWindow;
-    public Text StatusText;
-
     /// <summary>
-    /// In Awake we add listeners to UI buttons, so we can load and show an ad
-    /// And make sure that buttons are disabled, because a user shouldn't be able to press them
-    /// before ads are initialized
+    /// Class <c>InterstitialAdController</c> is a class that controls everything a user needs for creating,
+    /// loading and showing an interstitial ad in this application.
     /// </summary>
-    private void Awake()
+    public class InterstitialAdController : MonoBehaviour
     {
-        if (LoadButton == null || LoadStatus == null || ShowButton == null || ShowInfo == null)
-            throw new NullReferenceException("UI fields must be assigned");
+        private IInterstitialAdManager interstitialAdManager;
 
-        LoadButton.onClick.AddListener(LoadAd);
-        ShowButton.onClick.AddListener(ShowAd);
+        [SerializeField]
+        private string adUnitId_iOS;
+        [SerializeField]
+        private string adUnitId_Android;
 
-        LoadButton.interactable = false;
-        ShowButton.interactable = false;
+        [SerializeField]
+        private Button loadButton;
+        [SerializeField]
+        private Text loadStatus;
+        [SerializeField]
+        private Button showButton;
+        [SerializeField]
+        private Text showInfo;
 
-        LoadStatus.text = "Not Loaded";
-        ShowInfo.text = "No Ad";
-    }
+        public GameObject StatusWindow;
+        [SerializeField]
+        private Text statusText;
 
-    /// <summary>
-    /// After ads initialization, we can initialize the ad manager that can
-    /// use any mediation as long as every essential method is implemented
-    /// </summary>
-    public virtual void Initialize(IInterstitialAdManager adManager)
-    {    
-        _interstitialAdManager = adManager;
-        if (Application.platform == RuntimePlatform.Android)
+        /// <summary>
+        /// In Awake we add listeners to UI buttons, so we can load and show an ad
+        /// And make sure that buttons are disabled, because a user shouldn't be able to press them
+        /// before ads are initialized
+        /// </summary>
+        private void Awake()
         {
-            _interstitialAdManager.Initialize(adUnitId_Android);
+            if (loadButton == null || loadStatus == null || showButton == null || showInfo == null)
+                throw new NullReferenceException("UI fields must be assigned");
+
+            loadButton.onClick.AddListener(LoadAd);
+            showButton.onClick.AddListener(ShowAd);
+
+            loadButton.interactable = false;
+            showButton.interactable = false;
+
+            loadStatus.text = "Not Loaded";
+            showInfo.text = "No Ad";
         }
-        else 
+
+        /// <summary>
+        /// After ads initialization, we can initialize the ad manager that can
+        /// use any mediation as long as every essential method is implemented
+        /// </summary>
+        public virtual void Initialize(IInterstitialAdManager adManager)
         {
-            _interstitialAdManager.Initialize(adUnitId_iOS);
+            interstitialAdManager = adManager;
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    interstitialAdManager.Initialize(adUnitId_Android);
+                    break;
+                case RuntimePlatform.IPhonePlayer:
+                    interstitialAdManager.Initialize(adUnitId_iOS);
+                    break;
+                default:
+#if UNITY_EDITOR
+                    interstitialAdManager.Initialize(adUnitId_iOS);
+#else
+                        return;
+#endif
+                    break;
+            }
+            interstitialAdManager.OnLoaded += OnLoadedAd;
+            interstitialAdManager.OnClosed += OnClosedAd;
+
+            loadButton.interactable = true;
         }
-        _interstitialAdManager.OnLoaded += OnLoadedAd;
-        _interstitialAdManager.OnClosed += OnClosedAd;
 
-        LoadButton.interactable = true;
-    }
-
-    private void LoadAd()
-    {
-        LoadStatus.text = "Loading...";
-        _interstitialAdManager.Load();
-    }
-
-    private void OnLoadedAd()
-    {
-        LoadStatus.text = "Loaded";
-
-        // Only after ad is loaded we unblock the ShowButton, so a user couldn't
-        // try to show a not loaded ad
-        ShowButton.interactable = true;
-
-        ShowInfo.text = _interstitialAdManager.GetAdInfo() ?? "";
-    }
-
-    private void ShowAd()
-    {
-        _interstitialAdManager.Show();
-    }
-
-    private void OnClosedAd(bool status)
-    {
-        StatusWindow?.SetActive(true);
-        if (StatusText != null)
+        protected virtual void LoadAd()
         {
-            StatusText.text = status ? "Ad watched completely" : "Ad skipped";
+            loadStatus.text = "Loading...";
+            interstitialAdManager.Load();
         }
-        ResetAd();
-    }
 
-    private void ResetAd()
-    {
-        ShowButton.interactable = false;
-        LoadStatus.text = "Not Loaded";
-        ShowInfo.text = "No Ad";
-    }
+        protected virtual void OnLoadedAd()
+        {
+            loadStatus.text = "Loaded";
 
+            // Only after ad is loaded we unblock the ShowButton, so a user couldn't
+            // try to show a not loaded ad
+            showButton.interactable = true;
+
+            showInfo.text = interstitialAdManager.GetAdInfo() ?? "";
+        }
+
+        protected virtual void ShowAd()
+        {
+            interstitialAdManager.Show();
+        }
+
+        protected virtual void OnClosedAd(bool status)
+        {
+            if (StatusWindow != null)
+            {
+                StatusWindow.SetActive(true);
+            }
+            if (statusText != null)
+            {
+                statusText.text = status ? "Ad watched completely" : "Ad skipped";
+            }
+            ResetAd();
+        }
+
+        protected virtual void ResetAd()
+        {
+            showButton.interactable = false;
+            loadStatus.text = "Not Loaded";
+            showInfo.text = "No Ad";
+        }
+
+        private void OnDestroy()
+        {
+            loadButton.onClick.RemoveListener(LoadAd);
+            showButton.onClick.RemoveListener(ShowAd);
+        }
+
+    }
 }

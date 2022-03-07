@@ -1,40 +1,45 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Services.Core;
 using Unity.Services.Mediation;
+using UnityEngine;
 
-/// <summary>
-/// Class <c>UnityMediationInitializer</c> is a class that initializes
-/// Unity Mediation SDK
-/// </summary>
-public class UnityMediationInitializer
+namespace AdMediation.UnityMediation
 {
-    public Action OnInitialized { get; set; }
-
-    public async void Initialize(string key)
+    /// <summary>
+    /// Class <c>UnityMediationInitializer</c> is a class that initializes
+    /// Unity Mediation SDK
+    /// </summary>
+    public class UnityMediationInitializer
     {
-        try
+        public event Action OnInitialized;
+
+        public async Task Initialize(string key)
         {
-            InitializationOptions initializationOptions = new InitializationOptions();
-            initializationOptions.SetGameId(key);
-            await UnityServices.InitializeAsync(initializationOptions);
-            InitializationSuccess();
+            try
+            {
+                InitializationOptions initializationOptions = new InitializationOptions();
+                initializationOptions.SetGameId(key);
+                await UnityServices.InitializeAsync(initializationOptions);
+                InitializationSuccess();
+            }
+            catch (Exception e)
+            {
+                InitializationFailed(e);
+            }
+
         }
-        catch (Exception e)
+
+        private void InitializationSuccess()
         {
-            InitializationFailed(e);
-        }       
+            Debug.Log("Unity Mediation Initialized");
 
-    }
+            OnInitialized?.Invoke();
+        }
 
-    private void InitializationSuccess()
-    {
-        Console.WriteLine("Unity Mediation Initialized");
-
-        OnInitialized?.Invoke();
-    }
-
-    private void InitializationFailed(Exception e)
-    {
-        throw e;
+        private void InitializationFailed(Exception e)
+        {
+            throw e;
+        }
     }
 }
